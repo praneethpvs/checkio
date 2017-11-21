@@ -19,4 +19,5 @@ def func(text):
     else:
         print("Password length should be greater than 5")
 
+
 func("pswd")
