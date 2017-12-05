@@ -12,6 +12,7 @@ The process is repeated until all the words in the given set are matched and the
 
 def count_words(text, words):
     count = 0
+    
     temp_text = str(text).lower()
     for string in words:
         if string in temp_text:

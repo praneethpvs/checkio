@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-# Program that creates an instance automatically using boto3.
+
+"""
+Program that creates an instance automatically using boto3.
+"""
 
 import boto3
 from pexpect import pxssh
