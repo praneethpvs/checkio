@@ -3,6 +3,13 @@ import sys
 import os
 from traceback import print_exc
 
+"""
+The below line of code runs a system command which sets the bandwidth for particular network interface.
+For executing below statement "tcconfig" package is required.
+Link: http://tcconfig.readthedocs.io/en/latest/pages/introduction/index.html
+It can be used to set the properties of the traffic control over network
+The below command sets the bandwidth of the particular network device or server to 10 Mbps.
+"""
 os.system('tcset --device lo0 --rate 10M')
 
 
@@ -17,9 +24,12 @@ def get_size(f_name):
     return int(st.st_size)
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Creating a TCP/IP Socket.
-port = int(sys.argv[1])  # Reserve a port for your service.
-host = '127.0.0.1'  # Get local machine name
+# Creating a TCP/IP Socket for establishing connection to the client.
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Reserving a port for using the service.
+port = int(sys.argv[1])
+# Get local machine name
+host = '127.0.0.1'
 server_address = (host, port)
 print('starting up on %s port %s' % server_address)
 s.bind(server_address)  # Bind to the port
@@ -40,30 +50,37 @@ while True:
         connection.send(filename)
         connection.send(str(get_size(filename)))
         print("Sending the file %s the the client %s" % (filename, client_address))
-        try:
-            f = open(filename, 'rb')
-            file_data = f.read(1024)
-            while file_data:
-                connection.send(file_data)
-                # print('Sent Data %s' % repr(file_data))
-                # received_data = s.recv(1024)
-                # print('Received data from client: %s' % received_data)
-                # while True:
-                #     print("Checking if the data sent is received correctly by the client side.")
-                #     if received_data == file_data:
-                #         break
-                #     else:
-                #         connection.send(file_data)
+        packet_sent = 0
+        if get_size(filename) < 10485760:
+            try:
+                f = open(filename, 'rb')
                 file_data = f.read(1024)
-        except Exception as e:
-            print(e)
-            print_exc()
+                while file_data:
+                    connection.send(file_data)
+                    # print('Sent Data %s' % repr(file_data))
+                    # received_data = s.recv(1024)
+                    # print('Received data from client: %s' % received_data)
+                    # while True:
+                    #     print("Checking if the data sent is received correctly by the client side.")
+                    #     if received_data == file_data:
+                    #         break
+                    #     else:
+                    #         connection.send(file_data)
+                    file_data = f.read(1024)
+                    packet_sent += 1
+            except Exception as e:
+                print(e)
+                print_exc()
+            else:
+                # connection.send(str(packet_sent))
+                print("Number of packets sent: {}".format(packet_sent))
+                f.close()
+                print('Done sending')
+                # connection.send('Thank you for connecting')
+            finally:
+                connection.close()
         else:
-            f.close()
-            print('Done sending')
-            # connection.send('Thank you for connecting')
-        finally:
-            connection.close()
+            print("Specified file size should be less than 10 Mb. Please choose a file again")
     except Exception as e:
         print(e)
         print_exc()
